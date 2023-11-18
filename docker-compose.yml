@@ -1,0 +1,25 @@
+version: '3'
+services:
+  java-srv:
+    build: java-srv
+    ports:
+      - "80:8080"
+    command: sh -c "/wait && mvn clean spring-boot:run"
+    environment:
+      - WAIT_HOSTS=db:40404
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+
+  db:
+    image: gemfire/gemfire
+    environment:
+      - ACCEPT_TERMS=y
+    # entrypoint: "gfsh"
+    command: sh -c "gfsh start server && /geode/script/forever.sh"
+    # entrypoint: "sh"
+    # command: "-c /geode/script/forever.sh"
+    volumes:
+      - ./db:/geode/script
+    ports:
+      - 40404 # cache port
